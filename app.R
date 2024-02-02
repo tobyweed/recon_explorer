@@ -487,31 +487,3 @@ server <- function(input, output, session) {
 }
 
 shinyApp(ui, server)
-
-
-
-## SCRATCH
-
-
-# # create capture plot
-# capture_counts <- fac_caps %>%
-#   mutate(`Abbreviated Mission` = substr(Mission,1,4)) %>%
-#   filter(facility_name == fac_name) %>%
-#   group_by(facility_name, `Acquisition Date`, `Abbreviated Mission`, start_date) %>%
-#   summarise(n_caps = n())
-#
-# yearly_counts <- capture_counts %>%
-#   mutate(`Year` = as.numeric(substr(`Acquisition Date`,1,4))) %>%
-#   group_by(facility_name, Year) %>%
-#   summarise(n_caps = sum(n_caps)) %>%
-#   ungroup()
-#
-# yearly_counts %>%
-#   ggplot(aes(x = Year, y = n_caps, group = 1)) +
-#   geom_line()
-#
-# output$capture_plot <- renderPlot({
-#   yearly_counts %>%
-#     ggplot(aes(x = Year, y = n_caps, group = 1)) +
-#     geom_col()
-# })

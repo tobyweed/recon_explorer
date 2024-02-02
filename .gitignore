@@ -2,6 +2,7 @@
 
 rsconnect*
 .DS_Store
+.Rapp.history
 .Rhistory
 .Rproj.user
 .RData
