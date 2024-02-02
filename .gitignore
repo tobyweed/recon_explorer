@@ -1,0 +1,7 @@
+*.csv
+
+rsconnect*
+.DS_Store
+.Rhistory
+.Rproj.user
+.RData
