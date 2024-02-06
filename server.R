@@ -2,11 +2,13 @@
 
 
 server <- function(input, output, session) {
+  
+  # keeps track of sites which are in consideration overall -- ie, depending on whether or not we're showing unknown start dates -- NOT sites which existed in the currently selected date range
   state <- reactiveValues(fac = facs,
                           miss = missiles)
   
   # -------------------------------- UTILS -------------------------------------
-  # handle unknown dates
+  # if the Show Unknown Facilities button isn't activated, remove facilities with unknown start dates from consideration
   adjust_nas <- function() {
     state$fac <- facs
     
@@ -36,21 +38,24 @@ server <- function(input, output, session) {
                  miss_not_expired,]
   }
   
-  # filter for facilities which have been captured bf date
+  # filter for facilities which have been captured by date selected on slider
   captured_facs <- function() {
-    fac_caps %>% filter(`Acquisition Date` <= input$dateSlider) %>% # filter for fac_caps bf current date
-      filter(facility_name %in% state$fac$facility_name) %>% # filter facs which aren't in current state (e.g. NA)
+    fac_caps %>% filter(facility_name %in% fac_filtered_by_dates()$facility_name, # make sure the facility exists on the map right now
+                        `Acquisition Date` <= input$dateSlider) %>%  # make sure the capture occurred before the present date
       group_by(facility_name) %>% # group by facility
       filter(`Acquisition Date` == max(`Acquisition Date`)) %>% # keep the most recent fac_caps
       distinct(facility_name, .keep_all = TRUE) # make sure only one capture of each facility is present.
   }
   
-  # filter for missiles which have been captured
+  # captured_facs() doesn't return facilities which don't exist yet. Either these aren't present in fac_caps (meaning they're not present in the original dataset),
+  
+  # filter for missiles which have been captured by date selected on slider
   captured_miss <- function() {
-    miss_caps %>% filter(`Acquisition Date` <= input$dateSlider) %>% # filter for miss_caps bf current date
-      group_by(address_found) %>% # group by facility
-      filter(`Acquisition Date` == max(`Acquisition Date`)) %>% # keep the most recent fac_caps
-      distinct(address_found, .keep_all = TRUE) # make sure only one capture of each facility is present.
+    miss_caps %>% filter(address %in% miss_filtered_by_dates()$address, # make sure the missile exists on the map right now
+                         `Acquisition Date` <= input$dateSlider) %>%  # make sure the capture occurred before the present date
+      group_by(address) %>% # group by site
+      filter(`Acquisition Date` == max(`Acquisition Date`)) %>% # keep the most recent miss_caps
+      distinct(address, .keep_all = TRUE) # make sure only one capture of each missile is present.
   }
   
   # return a vector of popup windows for captured facilities or missiles
@@ -91,65 +96,58 @@ server <- function(input, output, session) {
   populate_map1 <- function() {
     leafletProxy(mapId = 'map1') %>%
       clearMarkers() %>%
-      addCircleMarkers(
-        data = fac_filtered_by_dates(),
-        lng = ~ lng,
-        lat = ~ lat,
-        radius = 2.8,
-        weight = 1,
-        color = "#2a297b",
-        opacity = 1,
-        fillOpacity = 1,
-        popup = ~ paste(
-          facility_name,
-          "<br>",
-          "Facility Start Date: ",
-          start_date,
-          ifelse(input$showCaptures, "<br>Not Yet Photographed", "")
-        )
-      )
-    # addMarkers(data = miss_filtered_by_dates(),
-    #            lng = ~lng, lat = ~lat,
-    #            icon = makeIcon(
-    #              iconUrl = "img/tri_#2a297b.png",
-    #              iconWidth = 7.5, iconHeight = 7.5
-    #            ),
-    #            popup = ~paste("Missile Site",
-    #                           "<br>Start Date: ", start_date,
-    #                           ifelse(input$showCaptures, "<br>Not Yet Photographed", "")))
+      # markers for extant facilities
+      addCircleMarkers(data = fac_filtered_by_dates(),
+                        lng = ~ lng, lat = ~ lat,
+                        radius = 2.8,
+                        weight = 1,
+                        color = "#2a297b",
+                        opacity = 1,
+                        fillOpacity = 1,
+                        popup = ~ paste(facility_name, "<br>", "Facility Start Date: ", start_date,
+                                        ifelse(input$showCaptures, "<br>Not Yet Photographed", ""))
+      ) %>%
+      # markers for extant missile sites
+      addMarkers(data = miss_filtered_by_dates(),
+                 lng = ~lng, lat = ~lat,
+                 icon = makeIcon(
+                   iconUrl = "img/tri_#2a297b.png",
+                   iconWidth = 7.5, iconHeight = 7.5
+                 ),
+                 popup = ~paste("Missile Site", "<br>Start Date: ", start_date,
+                                ifelse(input$showCaptures, "<br>Not Yet Photographed", "")))
     
+    # color markers red if we're showing capture occurrences
     if (input$showCaptures) {
       fac_caps <- captured_facs()
       fac_lngs <- fac_caps$lng
       fac_lats <- fac_caps$lat
       fac_popups <- get_popups(caps = fac_caps, is_facs = TRUE)
       
-      # miss_caps <- captured_miss()
-      # miss_lngs <- miss_caps$lng
-      # miss_lats <- miss_caps$lat
-      # miss_popups <- get_popups(caps = miss_caps, is_facs = FALSE)
-      
+      miss_caps <- captured_miss()
+      miss_lngs <- miss_caps$lng
+      miss_lats <- miss_caps$lat
+      miss_popups <- get_popups(caps = miss_caps, is_facs = FALSE)
+
       
       leafletProxy(mapId = 'map1') %>%
-        addCircleMarkers(
-          data = fac_caps,
-          lng = fac_lngs,
-          lat = fac_lats,
-          radius = 2.8,
-          weight = 1,
-          color = "#dd2119",
-          opacity = 1,
-          fillOpacity = 1,
-          popup = fac_popups
-        )
-      # addMarkers(data = miss_caps,
-      #                  lng = miss_lngs, lat = miss_lats,
-      #                  icon = makeIcon(
-      #                    iconUrl = "img/tri_#dd2119.png",
-      #                    iconWidth = 7.5, iconHeight = 7.5
-      #                  ),
-      #                  popup = miss_popups
-      # )
+        addCircleMarkers(data = fac_caps,
+                         lng = fac_lngs, lat = fac_lats,
+                         radius = 2.8, 
+                         weight = 1,
+                         color = "#dd2119",
+                         opacity = 1,
+                         fillOpacity = 1,
+                         popup = fac_popups
+        ) %>%
+        addMarkers(data = miss_caps,
+                   lng = miss_lngs, lat = miss_lats,
+                   icon = makeIcon(
+                     iconUrl = "img/tri_#dd2119.png",
+                     iconWidth = 7.5, iconHeight = 7.5
+                   ),
+                   popup = miss_popups
+      )
     }
   }
   
