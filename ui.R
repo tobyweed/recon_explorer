@@ -31,9 +31,10 @@ ui <- navbarPage(
                  min = min_date,
                  max = max_date,
                  value = min_date,
-                 step = 49
+                 step = 365.25/4,
+                 animate = animationOptions(interval = 250,
+                                            loop = TRUE)
                )
-               # animate = animationOptions(interval = 250))
              ),
              mainPanel(leafletOutput(
                "map1", height = "600px", width = "800px"
