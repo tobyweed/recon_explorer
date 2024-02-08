@@ -93,11 +93,6 @@ ui <- navbarPage(
                  uiOutput("capture_table_label"),
                  DTOutput(outputId = "capture_table", width = "100%")
                ),
-               # conditionalPanel(condition = "input.select_plot == 'Total Visits per Facility'",
-               #                  h3("BRUH."),
-               #                  textOutput("capture_totals_label"),
-               #                  DTOutput("capture_totals_table")),
-               # make a label that is common across all the capture plot options
                conditionalPanel(
                  condition = "['Capture Frequency by Camera Resolution', 'Capture Frequency by Facility', 'Capture Frequency by Data Source'].includes(input.select_plot)", # if we're displaying any of the capture plots
                  uiOutput("cap_plot_label")
