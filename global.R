@@ -13,3 +13,7 @@ miss_caps <- read_csv("data/miss_captures.csv")[-1]
 # get date range for the whole app
 min_date = min(append(facs$start_date, missiles$start_date), na.rm = TRUE)
 max_date = max(append(facs$start_date, missiles$start_date), na.rm = TRUE)
+
+# use the data.table package for faster indexing by date
+setDT(facs)
+setkey(facs, start_date, cap_date_low_res, cap_date_high_res) 
