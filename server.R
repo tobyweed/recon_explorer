@@ -1,25 +1,18 @@
-##  ------------------------------- SERVER ---------------------------------- ##
+##  ------------------------------------------------------------------------- ##
+##  ------------------------------ SERVER     ------------------------------- ##
+##  ------------------------------------------------------------------------- ##
 
 library(data.table)
 
 server <- function(input, output, session) {
   
   state <- reactiveValues(prev_date = min_date,
-                          facs_total = facs, # list of sites which are in consideration overall -- ie, depending on whether or not we're showing unknown start dates -- NOT sites which existed in the currently selected date range
-                          # facs_order_of_start = facs %>% arrange(start_date), # facs in order of start date
-                          # facs_order_of_lowcap = facs %>% arrange(cap_date_low_res), #facs in order of low res cap date
-                          # facs_order_of_highcap = facs %>% arrange(cap_date_high_res), #facs in order of high res cap date
-                          facs_exist = facs, # sites which should be displayed
-                          facs_low = facs, # sites which should be displayed as captured in low res
-                          facs_high = facs, # sites which should be displayed as captured in high res
-                          miss = missiles)
+                          fac_total = facs)
   
-  # # use the data.table package for faster indexing by date
-  # observe({
-  #   setDT(state$facs_total)
-  #   setkey(state$facs_total, start_date, cap_date_low_res, cap_date_high_res) 
-  # })
-  # 
+  
+  ##  ----------------------------------------------------------------------- ##
+  ##  ----------------------------    MAP     ------------------------------- ##
+  ##  ----------------------------------------------------------------------- ##
   
   # -------------------------------- UTILS -------------------------------------
   # if the Show Unknown Facilities button isn't activated, remove facilities with unknown start dates from consideration
@@ -37,86 +30,6 @@ server <- function(input, output, session) {
     }
   }
   
-  # filter facilities by date range shown on slider
-  update_facs_exist <- function() {
-    state$facs_exist <- state$facs_total[state$facs_total$start_date <= input$dateSlider,]
-  }
-  
-  # filter facilities which have been photographed in low res
-  update_caps_low <- function() {
-    cap_date <- state$facs_exist$cap_date_low_res
-    has_been_capped <- ifelse(!is.na(cap_date),
-                              cap_date <= input$dateSlider,
-                              FALSE)
-    
-    state$facs_low <- state$facs_exist[has_been_capped,]
-  }
-  
-  # filter facilities which have been photographed in high res
-  update_caps_high <- function() {
-    cap_date <- state$facs_exist$cap_date_high_res
-    has_been_capped <- ifelse(!is.na(cap_date),
-                              cap_date <= input$dateSlider,
-                              FALSE)
-    
-    state$facs_high <- state$facs_exist[has_been_capped,]
-  }
-  
-  # filter missiles by date range shown on slider
-  miss_filtered_by_dates <- function() {
-    miss_not_expired <-
-      ifelse(!is.na(state$miss$end_date),
-             state$miss$end_date >= input$dateSlider,
-             TRUE)
-    state$miss[(state$miss$start_date <= input$dateSlider) &
-                 miss_not_expired,]
-  }
-  
-  # filter for missiles which have been captured by date selected on slider
-  captured_miss <- function() {
-    miss_caps %>% filter(address %in% miss_filtered_by_dates()$address, # make sure the missile exists on the map right now
-                         `Acquisition Date` <= input$dateSlider) %>%  # make sure the capture occurred before the present date
-      group_by(address) %>% # group by site
-      filter(`Acquisition Date` == max(`Acquisition Date`)) %>% # keep the most recent miss_caps
-      distinct(address, .keep_all = TRUE) # make sure only one capture of each missile is present.
-  }
-  
-  # # return a vector of popup windows for captured facilities or missiles
-  # # NEW: name, start date, capture status (not yet photographed, capped in low def, capped in HD), click to see facility page
-  # get_popups <- function(caps, is_facs) {
-  #   popups <- c()
-  #   
-  #   # fill in fields of popup windows for markers
-  #   if (nrow(caps) >= 1) {
-  #     for (i in 1:nrow(caps)) {
-  #       popup <-
-  #         paste(
-  #           ifelse(
-  #             is_facs,
-  #             paste(caps$facility_name[i], "<br>"),
-  #             "Missile Site <br>"
-  #           ),
-  #           "Start Date: ",
-  #           caps$start_date[i],
-  #           "<br>",
-  #           "Most Recently Photographed: ",
-  #           caps$`Acquisition Date`[i],
-  #           "<br>",
-  #           a(
-  #             "Click to See Image and Metadata",
-  #             href = caps$pic_URL[i],
-  #             target = "_blank"
-  #           )
-  #         )
-  #       
-  #       popups <- c(popups, popup)
-  #     }
-  #   }
-  #   
-  #   popups
-  # }
-  # 
-  
   # wrapper functions for adding markers so I don't have to re-enter parameters that don't change
   add_fac_markers <- function(map, facs, color = "#2a297b", type = "uncapped") {
     map %>% addCircleMarkers(
@@ -133,80 +46,84 @@ server <- function(input, output, session) {
     )
   }
   
-  add_miss_markers <- function(map, miss) {
-    map %>% addMarkers(data = miss,
-               lng = ~lng, lat = ~lat,
-               icon = makeIcon(
-                 iconUrl = "img/tri_#2a297b.png",
-                 iconWidth = 7.5, iconHeight = 7.5
-               ),
-               popup = ~paste("Missile Site", "<br>Start Date: ", start_date,
-                              ifelse(input$showCaptures, "<br>Not Yet Photographed", "")))
+  # completely reset the markers
+  reset_map1 <- function() {
+    leafletProxy(mapId = 'map1') %>%
+      clearMarkers()
+    
+    current_date <- input$dateSlider
+    update_map1( prev_date = min_date, current_date = current_date) # set the previous date to the minimum date so all markers are re-drawn
+    state$prev_date <- current_date
   }
   
   # add markers ONLY where there should be markers. Don't re-add existing markers or take away old markers.
   update_map1 <- function(prev_date, current_date) {
     
     if(prev_date < current_date) {
-      fac_diff <- state$facs_total[state$facs_total$start_date >= prev_date & state$facs_total$start_date <= current_date]
+      fac_exist <- state$facs_total[state$facs_total$start_date >= prev_date & state$facs_total$start_date <= current_date]
       fac_low <- state$facs_total[state$facs_total$cap_date_low_res >= prev_date & state$facs_total$cap_date_low_res <= current_date]
       fac_high <- state$facs_total[state$facs_total$cap_date_high_res >= prev_date & state$facs_total$cap_date_high_res <= current_date]
-      
+
       # draw markers
       leafletProxy(mapId = 'map1') %>%
-        add_fac_markers(facs = fac_diff) %>%
+        add_fac_markers(facs = fac_exist) %>%
         add_fac_markers(facs = fac_low,
                         color = "green",
                         type = "capped_low") %>%# add low res markers
         add_fac_markers(facs = fac_high,
                         color = "red",
                         type = "capped_high") # add high res markers
-        
+      
     } else if(prev_date > current_date) {
-      fac_diff <- state$facs_total[state$facs_total$start_date <= prev_date & state$facs_total$start_date >= current_date]
+      fac_exist <- state$facs_total[state$facs_total$start_date <= prev_date & state$facs_total$start_date >= current_date]
       fac_low <- state$facs_total[state$facs_total$cap_date_low_res <= prev_date & state$facs_total$cap_date_low_res >= current_date]
       fac_high <- state$facs_total[state$facs_total$cap_date_high_res <= prev_date & state$facs_total$cap_date_high_res >= current_date]
       
       leafletProxy(mapId = 'map1') %>%
-        removeMarker(paste(as.character(fac_diff$facility_name),"uncapped")) %>%
+        removeMarker(paste(as.character(fac_exist$facility_name),"uncapped")) %>%
         removeMarker(paste(as.character(fac_low$facility_name),"capped_low")) %>%
         removeMarker(paste(as.character(fac_high$facility_name),"capped_high"))
     }
   }
   
-  # add markers where there should be markers
-  populate_map1 <- function() {
-    # update_facs_exist () # update the displayed facilities
-    # update_facs_low()
-    # update_facs_high()
-    # print("populate map")
-    # # state$toggle_markers <- !state$toggle_markers
-    # 
-    # leafletProxy(mapId = 'map1') %>%
-    #   clearMarkers() %>%
-    #   add_fac_markers(facs = state$facs_exist) %>% # markers for extant facilities
-    #   add_fac_markers(facs = state$facs_low,
-    #                   color = "green",
-    #                   type = "capped_low") %>% # add low res markers
-    #   add_fac_markers(facs = state$facs_high,
-    #                   color = "red",
-    #                   type = "capped_high") %>% # add high res markers
-    #   add_miss_markers(miss = miss_filtered_by_dates()) # markers for extant missile sites
-    
-    # print(state$toggle_markers)
-    # show_caps()
-  }
-  
   # map for Map page. run on startup. Adjust NAs and filter by date
   output$map1 <- renderLeaflet({
-    map <- leaflet(leafletOptions(minZoom = 0)) %>%
+    leaflet(leafletOptions(minZoom = 0)) %>%
       addTiles() %>%
       setView(lng = 0,
               lat = 0,
-              zoom = 1)
-    map
+              zoom = 1) 
   })
   
+  
+  # --------------------------- EVENT HANDLERS ---------------------------------
+  # re-create map whenever date slider is changed
+  observeEvent(eventExpr = {
+    input$dateSlider
+  }, handlerExpr = {
+    current_date <- input$dateSlider
+    update_map1(state$prev_date, current_date)
+    state$prev_date <- current_date
+  })
+  
+  # re-create map when showUnknown checkbox is toggled
+  observeEvent(eventExpr = {
+    input$showUnknown
+  }, handlerExpr = {
+    adjust_nas()
+    reset_map1()
+  })
+  
+  
+  
+  
+  
+  ##  ----------------------------------------------------------------------- ##
+  ##  ----------------------------  EXPLORE   ------------------------------- ##
+  ##  ----------------------------------------------------------------------- ##
+  
+  
+  # -------------------------------- UTILS -------------------------------------
   # remove the countries listed after the facility names in the input, in the format "Facility Name [Country]"
   remove_country_name <- function(fac_name_string) {
     sub(" \\[.*\\]", "", fac_name_string)
@@ -344,37 +261,7 @@ server <- function(input, output, session) {
   })
   
   
-  
   # --------------------------- EVENT HANDLERS ---------------------------------
-  # re-create map whenever date slider is changed
-  observeEvent(eventExpr = {
-    input$dateSlider
-  }, handlerExpr = {
-    current_date <- input$dateSlider
-    # adjust_nas()
-    
-    update_map1(state$prev_date, current_date)
-    # populate_map1()
-    
-    state$prev_date <- current_date
-  })
-  
-  # re-create map when showUnknown checkbox is toggled
-  observeEvent(eventExpr = {
-    input$showUnknown
-  }, handlerExpr = {
-    adjust_nas()
-    populate_map1()
-  })
-  
-  # re-create map when showCaptures checkbox is toggled
-  observeEvent(eventExpr = {
-    input$showCaptures
-  }, handlerExpr = {
-    adjust_nas()
-    populate_map1()
-  })
-  
   # search for a facility by name
   observeEvent(eventExpr = {
     input$facility
@@ -396,63 +283,92 @@ server <- function(input, output, session) {
     render_plots(fac_names)
   })
   
-  
-  
-  
-  # SCRATCH - DELETE
-  
-  # # add red markers on targets which have been photographed
-  # #  need: list of facs which have been captured, along with:
-  # #     facility_name, lats & lngs, start_date, Acquisition Date, and pic_URL
-  # show_caps <- function() {
-  #   # color markers red if we're showing capture occurrences
-  #   if (input$showCaptures) {
-  #     update_facs_exist() # update the displayed facilities
-  #     
-  #     fac_caps <- captured_facs()
-  #     fac_popups <- get_popups(caps = fac_caps, is_facs = TRUE)
-  #     
-  #     miss_caps <- captured_miss()
-  #     miss_popups <- get_popups(caps = miss_caps, is_facs = FALSE)
-  #     
-  #     
-  #     leafletProxy(mapId = 'map1') %>%
-  #       addCircleMarkers(
-  #         lng = fac_caps$lng, lat = fac_caps$lat,
-  #         radius = 2.8, 
-  #         weight = 1,
-  #         color = "#dd2119",
-  #         opacity = 1,
-  #         fillOpacity = 1,
-  #         popup = fac_popups
-  #       ) %>%
-  #       addMarkers(
-  #         lng = miss_caps$lng, lat = miss_caps$lat,
-  #         icon = makeIcon(
-  #           iconUrl = "img/tri_#dd2119.png",
-  #           iconWidth = 7.5, iconHeight = 7.5
-  #         ),
-  #         popup = miss_popups
-  #       )
-  #   }
-  # }
-  
-  
-  
-  # # filter for facilities which have been captured by date selected on slider
-  # captured_facs <- function() {
-  #   # state$facs_capped
-  #   # state$fac_caps_unused
-  #   
-  #   # I think the best way to do this is to generate a df containing simply the date when each facility gets captured in what definition
-  #   # new_facs_capped <- facs_
-  #   
-  #   fac_caps %>% filter(facility_name %in% state$facs_exist$facility_name, # make sure the facility exists on the map right now
-  #                       `Acquisition Date` <= input$dateSlider) %>%  # make sure the capture occurred before the present date
-  #     group_by(facility_name) %>% # group by facility
-  #     filter(`Acquisition Date` == max(`Acquisition Date`)) %>% # keep the most recent fac_caps
-  #     distinct(facility_name, .keep_all = TRUE) # make sure only one capture of each facility is present.
-  # }
-  
-  
 }
+
+
+
+
+#SCRATCH
+
+# # return a vector of popup windows for captured facilities or missiles
+# # NEW: name, start date, capture status (not yet photographed, capped in low def, capped in HD), click to see facility page
+# get_popups <- function(caps, is_facs) {
+#   popups <- c()
+#   
+#   # fill in fields of popup windows for markers
+#   if (nrow(caps) >= 1) {
+#     for (i in 1:nrow(caps)) {
+#       popup <-
+#         paste(
+#           ifelse(
+#             is_facs,
+#             paste(caps$facility_name[i], "<br>"),
+#             "Missile Site <br>"
+#           ),
+#           "Start Date: ",
+#           caps$start_date[i],
+#           "<br>",
+#           "Most Recently Photographed: ",
+#           caps$`Acquisition Date`[i],
+#           "<br>",
+#           a(
+#             "Click to See Image and Metadata",
+#             href = caps$pic_URL[i],
+#             target = "_blank"
+#           )
+#         )
+#       
+#       popups <- c(popups, popup)
+#     }
+#   }
+#   
+#   popups
+# }
+# 
+
+
+# add_miss_markers <- function(map, miss) {
+#   map %>% addMarkers(data = miss,
+#                      lng = ~lng, lat = ~lat,
+#                      icon = makeIcon(
+#                        iconUrl = "img/tri_#2a297b.png",
+#                        iconWidth = 7.5, iconHeight = 7.5
+#                      ),
+#                      popup = ~paste("Missile Site", "<br>Start Date: ", start_date,
+#                                     ifelse(input$showCaptures, "<br>Not Yet Photographed", "")))
+# }
+
+
+
+# # add markers where there should be markers
+# populate_map1 <- function() {
+#   # update_facs_exist () # update the displayed facilities
+#   # update_facs_low()
+#   # update_facs_high()
+#   # print("populate map")
+#   # # state$toggle_markers <- !state$toggle_markers
+#   # 
+#   # leafletProxy(mapId = 'map1') %>%
+#   #   clearMarkers() %>%
+#   #   add_fac_markers(facs = state$facs_exist) %>% # markers for extant facilities
+#   #   add_fac_markers(facs = state$facs_low,
+#   #                   color = "green",
+#   #                   type = "capped_low") %>% # add low res markers
+#   #   add_fac_markers(facs = state$facs_high,
+#   #                   color = "red",
+#   #                   type = "capped_high") %>% # add high res markers
+#   #   add_miss_markers(miss = miss_filtered_by_dates()) # markers for extant missile sites
+#   
+#   # print(state$toggle_markers)
+#   # show_caps()
+# }
+
+
+# # filter for missiles which have been captured by date selected on slider
+# captured_miss <- function() {
+#   miss_caps %>% filter(address %in% miss_filtered_by_dates()$address, # make sure the missile exists on the map right now
+#                        `Acquisition Date` <= input$dateSlider) %>%  # make sure the capture occurred before the present date
+#     group_by(address) %>% # group by site
+#     filter(`Acquisition Date` == max(`Acquisition Date`)) %>% # keep the most recent miss_caps
+#     distinct(address, .keep_all = TRUE) # make sure only one capture of each missile is present.
+# }

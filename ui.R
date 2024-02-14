@@ -24,7 +24,7 @@ ui <- navbarPage(
              sidebarPanel(
                HTML("<strong>Filter Facilities</strong>"),
                checkboxInput("showUnknown", "Show Facilities with Unknown Start Dates", value = FALSE),
-               checkboxInput("showCaptures", "Show Spotted Facilities", value = FALSE),
+               # checkboxInput("showCaptures", "Show Spotted Facilities", value = FALSE),
                sliderInput(
                  "dateSlider",
                  "Adjust Date:",
