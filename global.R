@@ -3,6 +3,7 @@ library(shiny)
 library(shinyjs)
 library(leaflet)
 library(DT)
+library(data.table)
 
 ## SETUP
 facs <- read_csv("data/facilities.csv")[-1]

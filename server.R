@@ -88,11 +88,17 @@ server <- function(input, output, session) {
   
   # map for Map page. run on startup. Adjust NAs and filter by date
   output$map1 <- renderLeaflet({
-    leaflet(leafletOptions(minZoom = 0)) %>%
+    leaflet(options = leafletOptions(minZoom = 0,
+                                     zoomControl = FALSE,
+                                     scrollWheelZoom = FALSE)) %>%
       addTiles() %>%
       setView(lng = 0,
-              lat = 0,
-              zoom = 1) 
+              lat = 30,
+              zoom = 2) %>%
+      # addControl(position = "topright") %>%
+      htmlwidgets::onRender("function(el, x) {
+          L.control.zoom({ position: 'bottomright' }).addTo(this)
+      }")
   })
   
   
@@ -170,8 +176,8 @@ server <- function(input, output, session) {
       datatable(
         cap_table,
         options = list(
-          lengthMenu = c(5, 10, 15), # set the options for the number of entries per page
-          pageLength = 5 # set the default number of entries per page)
+          lengthMenu = c(5, 15, 50, 100, 1000), # set the options for the number of entries per page
+          pageLength = 15 # set the default number of entries per page)
         ), 
         selection = "none", # disable selecting rows to get rid of annoying blue selection
         escape = FALSE)

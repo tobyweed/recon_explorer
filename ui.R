@@ -16,32 +16,77 @@ ui <- navbarPage(
                            overflow-y: auto;}
         .leaflet-control-zoom { z-index: -1;
                                 color = 'red';}
+                                
+        /* .container-fluid >.tab-content[data-value='Search'] {
+          padding-right: 0px;
+          padding-left: 0px;
+        }
+        
+        .navbar>.container-fluid .navbar-brand {
+            margin-left: 0px;
+        } 
+                                        
+        .navbar {
+          margin-bottom: 0;
+        } 
+        
+        .tab-pane[data-value='Search'] {
+          margin-top: 20px;
+          padding-right: 15px;
+          padding-left: 15px;
+        } */
+                                
+        #map1 { 
+          position: fixed; 
+          top: 0; 
+          left: 0; /*
+          width: 100vw; 
+          height: 100vh; 
+          z-index: 9999; */
+          padding: 0;
+          margin: 0;
+          doubleClickZoom: false;
+          closePopupOnClick: false;
+          dragging: false;
+          zoomSnap: false;
+          zoomDelta: false;
+          trackResize: false;
+          touchZoom: false;
+          scrollWheelZoom: false;
+        } 
       "
   ),
-  
-  tabPanel("Timeline",
-           sidebarLayout(
-             sidebarPanel(
-               HTML("<strong>Filter Facilities</strong>"),
-               checkboxInput("showUnknown", "Show Facilities with Unknown Start Dates", value = FALSE),
-               # checkboxInput("showCaptures", "Show Spotted Facilities", value = FALSE),
-               sliderInput(
-                 "dateSlider",
-                 "Adjust Date:",
-                 min = min_date,
-                 max = max_date,
-                 value = min_date,
-                 step = 365.25/4,
-                 animate = animationOptions(interval = 250,
-                                            loop = TRUE)
+
+  tabPanel("Map",
+           # sidebarLayout(
+           #   sidebarPanel(
+           #     HTML("<strong>Filter Facilities</strong>"),
+           #     checkboxInput("showUnknown", "Show Facilities with Unknown Start Dates", value = FALSE),
+           #     # checkboxInput("showCaptures", "Show Spotted Facilities", value = FALSE),
+           #     sliderInput(
+           #       "dateSlider",
+           #       "Adjust Date:",
+           #       min = min_date,
+           #       max = max_date,
+           #       value = min_date,
+           #       step = 365.25/4,
+           #       animate = animationOptions(interval = 500/4,
+           #                                  loop = TRUE)
+           #     )
+           #   ),
+             # mainPanel(
+                 leafletOutput(
+                 "map1",
+                 height = "100vh",
+                 width = "100%"
+                 # height = "600px", width = "800px"
+                
                )
-             ),
-             mainPanel(leafletOutput(
-               "map1", height = "600px", width = "800px"
-             ))
-           )),
+             # )
+           # )
+  ),
   
-  tabPanel("Explore",
+  tabPanel("Search",
            sidebarLayout(
              # FACILITY SELECTION
              sidebarPanel(
