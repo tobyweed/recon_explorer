@@ -2,10 +2,16 @@
 
 ui <- navbarPage(
   "Nuclear Recon Explorer",
-  # custom styling
-  tags$style(
-    type = "text/css",
-    "
+  
+  tags$head(
+    # custom styling
+    tags$style(
+      type = "text/css",
+      "
+        body {
+              font-family: 'Roboto', sans-serif;
+        }
+        
         .js-irs-0 .irs-single, .js-irs-0 .irs-bar-edge, .js-irs-0 .irs-bar { }
         .js-irs-1 .irs-single, .js-irs-1 .irs-bar-edge, .js-irs-1 .irs-bar, .js-irs-1 .irs-from, .js-irs-1 .irs-to {background: red;
                                                     border-top: 1px solid red ;
@@ -39,51 +45,106 @@ ui <- navbarPage(
         #map1 { 
           position: fixed; 
           top: 0; 
-          left: 0; /*
-          width: 100vw; 
-          height: 100vh; 
-          z-index: 9999; */
+          left: 0;
           padding: 0;
           margin: 0;
-          doubleClickZoom: false;
-          closePopupOnClick: false;
-          dragging: false;
-          zoomSnap: false;
-          zoomDelta: false;
-          trackResize: false;
-          touchZoom: false;
-          scrollWheelZoom: false;
         } 
+        
+        .map1-controls {
+          position: relative;
+          width: 28vw;
+          display: inline-block;
+          z-index: 1000; 
+          background: white;
+          padding: 10px 25px 10px 25px;
+          border-radius: 5px;
+          box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+        }
+        
+        .control-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          font-size: 18px;
+        }
+        
+        .toggle-icon {
+          cursor: pointer;
+        }
+        
+        .map1-controls.collapsed {
+          height: auto;
+          overflow: hidden; 
+        }
+        
+        .map1-controls.collapsed .control-content {
+          display: none;
+        }
+             
+        .map1-controls .control-content {
+          padding-top: 20px;
+          border-top: 1px solid #ddd;
+        }
+      
+        .map1-controls .control-content .slider-container label {
+          font-weight: normal;
+          margin-left: -20px;
+        }
+        
+        .map1-controls .control-content .slider-container {
+          margin-left: 20px;
+        }
       "
+    ),
+    
+    tags$script(src = "https://kit.fontawesome.com/3ba4309900.js"),
+    
+    tags$script(HTML("
+      $(document).ready(function() {
+        $('#toggle-icon').click(function() {
+          $('.map1-controls').toggleClass('collapsed');
+          if ($('.map1-controls').hasClass('collapsed')) {
+            $('#toggle-icon').removeClass('fa-plus').addClass('fa-minus');
+          } else {
+            $('#toggle-icon').removeClass('fa-minus').addClass('fa-plus');
+          }
+        });
+      });
+    ")),
   ),
 
   tabPanel("Map",
-           # sidebarLayout(
-           #   sidebarPanel(
-           #     HTML("<strong>Filter Facilities</strong>"),
-           #     checkboxInput("showUnknown", "Show Facilities with Unknown Start Dates", value = FALSE),
-           #     # checkboxInput("showCaptures", "Show Spotted Facilities", value = FALSE),
-           #     sliderInput(
-           #       "dateSlider",
-           #       "Adjust Date:",
-           #       min = min_date,
-           #       max = max_date,
-           #       value = min_date,
-           #       step = 365.25/4,
-           #       animate = animationOptions(interval = 500/4,
-           #                                  loop = TRUE)
-           #     )
-           #   ),
-             # mainPanel(
-                 leafletOutput(
-                 "map1",
-                 height = "100vh",
-                 width = "100%"
-                 # height = "600px", width = "800px"
-                
-               )
-             # )
-           # )
+           leafletOutput(
+               "map1",
+               height = "100vh",
+               width = "100%"
+           ),
+           div(
+             class = "map1-controls",
+             div(
+               class = "control-header",
+               h4("Controls"),
+               tags$i(id = "toggle-icon", class = "toggle-icon fas fa-minus")
+             ),
+             div(
+               class = "control-content",
+               div(
+                 class = "slider-container",
+                 sliderInput(
+                   "dateSlider",
+                   "Adjust Date:",
+                   min = min_date,
+                   max = max_date,
+                   value = min_date,
+                   step = 365.25/4,
+                   animate = animationOptions(interval = 500/4,
+                                              loop = TRUE))
+                 ),
+               checkboxInput("showUnknown", "Show Facilities with Unknown Start Dates", value = FALSE),
+               # checkboxInput("showCaptures", "Show Spotted Facilities", value = FALSE),
+               # actionButton("toggle-button", "Toggle Control")
+             )
+           )
   ),
   
   tabPanel("Search",
