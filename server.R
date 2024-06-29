@@ -31,7 +31,7 @@ server <- function(input, output, session) {
   }
   
   # wrapper functions for adding markers so I don't have to re-enter parameters that don't change
-  add_fac_markers <- function(map, facs, color = "#2a297b", type = "uncapped") {
+  add_fac_markers <- function(map, facs, color = "#BB86FC", type = "uncapped") {
     map %>% addCircleMarkers(
       data = facs,
       layerId=paste(as.character(facs$facility_name),type),
@@ -68,10 +68,10 @@ server <- function(input, output, session) {
       leafletProxy(mapId = 'map1') %>%
         add_fac_markers(facs = fac_exist) %>%
         add_fac_markers(facs = fac_low,
-                        color = "green",
+                        color = "#a6d04e",
                         type = "capped_low") %>%# add low res markers
         add_fac_markers(facs = fac_high,
-                        color = "red",
+                        color = "#e66966",
                         type = "capped_high") # add high res markers
       
     } else if(prev_date > current_date) {
@@ -91,7 +91,10 @@ server <- function(input, output, session) {
     leaflet(options = leafletOptions(minZoom = 0,
                                      zoomControl = FALSE,
                                      scrollWheelZoom = FALSE)) %>%
-      addTiles() %>%
+      # addTiles() %>%
+      # addProviderTiles(providers$CartoDB.DarkMatter) %>%
+      addProviderTiles(providers$Stadia.AlidadeSmoothDark) %>%
+      # addProviderTiles(providers$NASAGIBS.ViirsEarthAtNight2012) %>%
       setView(lng = 0,
               lat = 30,
               zoom = 2) %>%

@@ -1,0 +1,152 @@
+body {
+    font-family: 'Roboto', sans-serif;
+}
+
+.navbar,
+.navbar-default {
+    background-color: #2a2a41;
+    border-color: #1a1a33;
+    height: 70px;
+} 
+
+.navbar-default .navbar-brand {
+    color: #E0E0E0;
+}
+
+.navbar-default .navbar-nav>li>a {
+    color: #E0E0E0;
+}
+
+.js-irs-0 .irs-single,
+.js-irs-0 .irs-bar-edge,
+.js-irs-0 .irs-bar {
+    background: #BB86FC;
+    border-top: 1px solid #BB86FC;
+    border-bottom: 1px solid #BB86FC;
+}
+
+.js-irs-1 .irs-single,
+.js-irs-1 .irs-bar-edge,
+.js-irs-1 .irs-bar,
+.js-irs-1 .irs-from,
+.js-irs-1 .irs-to {
+    background: #BB86FC;
+    border-top: 1px solid #BB86FC;
+    border-bottom: 1px solid #BB86FC;
+}
+
+.subtitle {
+    padding-left: 15px;
+    color: #B0B0B0;
+}
+
+.selectize-input {
+    max-height: 200px;
+    overflow-y: auto;
+    background-color: #2a2a41; /* updated to match the terminal background */
+    color: #E0E0E0;
+    border: 1px solid #1a1a33; /* updated to a slightly lighter shade */
+}
+
+.selectize-dropdown {
+    background-color: #2a2a41; /* updated to match the terminal background */
+    color: #E0E0E0;
+}
+
+.leaflet-control-zoom {
+    z-index: -1;
+    color: #BB86FC;
+}
+
+#map1 {
+    position: fixed;
+    top: 0;
+    left: 0;
+    padding: 0;
+    margin: 0;
+}
+
+.map1-controls {
+    position: relative;
+    width: 28vw;
+    display: inline-block;
+    z-index: 1000;
+    background: #2a2a41; /* updated to match the terminal background */
+    color: #E0E0E0;
+    padding: 10px 25px 10px 25px;
+    border-radius: 5px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.control-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 18px;
+}
+
+.toggle-icon {
+    cursor: pointer;
+}
+
+.map1-controls.collapsed {
+    height: auto;
+    overflow: hidden;
+}
+
+.map1-controls.collapsed .control-content {
+    display: none;
+}
+
+.map1-controls .control-content {
+    padding-top: 20px;
+    border-top: 1px solid #1a1a33; /* updated to a slightly lighter shade */
+}
+
+.map1-controls .control-content .slider-container label {
+    font-weight: normal;
+    margin-left: -20px;
+}
+
+.map1-controls .control-content .slider-container {
+    margin-left: 20px;
+}
+
+.sidebarPanel {
+    background-color: #2a2a41; /* updated to match the terminal background */
+    border-color: #1a1a33; /* updated to a slightly lighter shade */
+}
+
+.mainPanel {
+    background-color: #121212; /* kept the same to match dark theme */
+}
+
+.form-control {
+    background-color: #2a2a41; /* updated to match the terminal background */
+    color: #E0E0E0;
+    border: 1px solid #1a1a33; /* updated to a slightly lighter shade */
+}
+
+.btn {
+    background-color: #BB86FC;
+    color: #121212;
+    border: none;
+}
+
+.btn:hover {
+    background-color: #9A68FF;
+}
+
+.dataTables_wrapper {
+    background-color: #2a2a41; /* updated to match the terminal background */
+}
+
+.dt-button {
+    background-color: #BB86FC;
+    color: #121212;
+    border: none;
+}
+
+.dt-button:hover {
+    background-color: #9A68FF;
+}

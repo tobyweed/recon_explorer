@@ -4,98 +4,8 @@ ui <- navbarPage(
   "Nuclear Recon Explorer",
   
   tags$head(
-    # custom styling
-    tags$style(
-      type = "text/css",
-      "
-        body {
-              font-family: 'Roboto', sans-serif;
-        }
-        
-        .js-irs-0 .irs-single, .js-irs-0 .irs-bar-edge, .js-irs-0 .irs-bar { }
-        .js-irs-1 .irs-single, .js-irs-1 .irs-bar-edge, .js-irs-1 .irs-bar, .js-irs-1 .irs-from, .js-irs-1 .irs-to {background: red;
-                                                    border-top: 1px solid red ;
-                                                    border-bottom: 1px solid red ;}
-        .subtitle { padding-left: 15px;
-                    color: #808080; }
-        .selectize-input { max-height: 200px;
-                           overflow-y: auto;}
-        .leaflet-control-zoom { z-index: -1;
-                                color = 'red';}
-                                
-        /* .container-fluid >.tab-content[data-value='Search'] {
-          padding-right: 0px;
-          padding-left: 0px;
-        }
-        
-        .navbar>.container-fluid .navbar-brand {
-            margin-left: 0px;
-        } 
-                                        
-        .navbar {
-          margin-bottom: 0;
-        } 
-        
-        .tab-pane[data-value='Search'] {
-          margin-top: 20px;
-          padding-right: 15px;
-          padding-left: 15px;
-        } */
-                                
-        #map1 { 
-          position: fixed; 
-          top: 0; 
-          left: 0;
-          padding: 0;
-          margin: 0;
-        } 
-        
-        .map1-controls {
-          position: relative;
-          width: 28vw;
-          display: inline-block;
-          z-index: 1000; 
-          background: white;
-          padding: 10px 25px 10px 25px;
-          border-radius: 5px;
-          box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-        }
-        
-        .control-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          font-size: 18px;
-        }
-        
-        .toggle-icon {
-          cursor: pointer;
-        }
-        
-        .map1-controls.collapsed {
-          height: auto;
-          overflow: hidden; 
-        }
-        
-        .map1-controls.collapsed .control-content {
-          display: none;
-        }
-             
-        .map1-controls .control-content {
-          padding-top: 20px;
-          border-top: 1px solid #ddd;
-        }
-      
-        .map1-controls .control-content .slider-container label {
-          font-weight: normal;
-          margin-left: -20px;
-        }
-        
-        .map1-controls .control-content .slider-container {
-          margin-left: 20px;
-        }
-      "
-    ),
+    tags$link(rel = "stylesheet", type = "text/css", href = "style1.css"),
+    # tags$link(rel = "stylesheet", type = "text/css", href = "style2.css"),
     
     tags$script(src = "https://kit.fontawesome.com/3ba4309900.js"),
     
@@ -104,9 +14,9 @@ ui <- navbarPage(
         $('#toggle-icon').click(function() {
           $('.map1-controls').toggleClass('collapsed');
           if ($('.map1-controls').hasClass('collapsed')) {
-            $('#toggle-icon').removeClass('fa-plus').addClass('fa-minus');
-          } else {
             $('#toggle-icon').removeClass('fa-minus').addClass('fa-plus');
+          } else {
+            $('#toggle-icon').removeClass('fa-plus').addClass('fa-minus');
           }
         });
       });
@@ -148,9 +58,11 @@ ui <- navbarPage(
   ),
   
   tabPanel("Search",
+           class = "search",
            sidebarLayout(
              # FACILITY SELECTION
              sidebarPanel(
+               class = "search-sidebar",
                selectInput(
                  inputId = "searchmode",
                  label = "Select facilities by:",
