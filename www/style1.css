@@ -13,6 +13,8 @@
     --text-color: #e0e0e0;
     --hover-color: white;
     --color-1: #BB86FC;
+    --color-2: #a6d04e;
+    --color-3: #e66966;
     --highlight-hover-color: #9A68FF;
 }
 
@@ -95,11 +97,10 @@ btn:hover {
 	margin: 0;
 }
 
-
-.map1-controls {
+.map1-collapsible {
 	position: relative;
 	width: 28vw;
-	display: inline-block;
+	display: block;
 	z-index: 1000;
 	/* background: #f8f8f8;
 	color: #777777;	*/
@@ -113,7 +114,11 @@ btn:hover {
 	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
 }
 
-.control-header {
+#map1-key {
+  margin-top: 15px;
+}
+
+.map1-collapsible-header {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
@@ -124,29 +129,58 @@ btn:hover {
 	cursor: pointer;
 }
 
-.map1-controls.collapsed {
+.map1-collapsible.collapsed {
 	height: auto;
 	overflow: hidden;
 }
 
-.map1-controls.collapsed .control-content {
+.map1-collapsible.collapsed .map1-collapsible-content {
 	display: none;
 }
 
-.map1-controls .control-content {
+.map1-collapsible .map1-collapsible-content {
 	padding-top: 20px;
 	margin-top: 10px;
 	border-top: 1px solid var(--text-color);
 }
 
-.map1-controls .control-content .slider-container label {
+#map1-controls #map1-controls-content .slider-container label {
 	font-weight: normal;
 	margin-left: -20px;
 }
 
-.map1-controls .control-content .slider-container {
+#map1-controls #map1-controls-content .slider-container {
 	margin-left: 20px;
 }
+
+.map1-key-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.map1-key-icon-container {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.map1-key-icon {
+  font-size: 12px;
+  margin-right: 10px;
+}
+
+#map1-key-icon1 {
+  color: var(--color-1);
+}
+
+#map1-key-icon2 {
+  color: var(--color-2);
+}
+
+#map1-key-icon3 {
+  color: var(--color-3);
+}
+
 
 .search-sidebar {
   background-color: var(--background-color);

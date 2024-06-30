@@ -12,12 +12,21 @@ ui <- navbarPage(
     
     tags$script(HTML("
       $(document).ready(function() {
-        $('#toggle-icon').click(function() {
-          $('.map1-controls').toggleClass('collapsed');
-          if ($('.map1-controls').hasClass('collapsed')) {
-            $('#toggle-icon').removeClass('fa-minus').addClass('fa-plus');
+        $('#map1-controls-toggle').click(function() {
+          $('#map1-controls').toggleClass('collapsed');
+          if ($('#map1-controls').hasClass('collapsed')) {
+            $('#map1-controls-toggle').removeClass('fa-minus').addClass('fa-plus');
           } else {
-            $('#toggle-icon').removeClass('fa-plus').addClass('fa-minus');
+            $('#map1-controls-toggle').removeClass('fa-plus').addClass('fa-minus');
+          }
+        });
+        
+        $('#map1-key-toggle').click(function() {
+          $('#map1-key').toggleClass('collapsed');
+          if ($('#map1-key').hasClass('collapsed')) {
+            $('#map1-key-toggle').removeClass('fa-minus').addClass('fa-plus');
+          } else {
+            $('#map1-key-toggle').removeClass('fa-plus').addClass('fa-minus');
           }
         });
       });
@@ -31,14 +40,16 @@ ui <- navbarPage(
                width = "100%"
            ),
            div(
-             class = "map1-controls",
+             id = "map1-controls",
+             class = "map1-collapsible",
              div(
-               class = "control-header",
+               class = "map1-collapsible-header",
                h4("Controls"),
-               tags$i(id = "toggle-icon", class = "toggle-icon fas fa-minus")
+               tags$i(id = "map1-controls-toggle", class = "toggle-icon fas fa-minus")
              ),
              div(
-               class = "control-content",
+               id = "map1-controls-content",
+               class = "map1-collapsible-content",
                div(
                  class = "slider-container",
                  sliderInput(
@@ -56,31 +67,32 @@ ui <- navbarPage(
              )
            ),
            div(
-             class = "map1-controls",
              id = "map1-key",
+             class = "map1-collapsible",
              div(
-               class = "control-header",
-               id = "key-header",
+               id = "map1-key-header",
+               class = "map1-collapsible-header",
                h4("Key"),
-               tags$i(id = "toggle-icon", class = "toggle-icon fas fa-minus")
+               tags$i(id = "map1-key-toggle", class = "toggle-icon fas fa-minus")
              ),
              div(
-               class = "control-content",
-               id = "key-content",
+               id = "map1-key-content",
+               class = "map1-collapsible-content",
                div(
-                 class = "slider-container",
-                 sliderInput(
-                   "dateSlider",
-                   "Timeline",
-                   min = min_date,
-                   max = max_date,
-                   value = min_date,
-                   step = 365.25/4,
-                   animate = animationOptions(interval = 500/4,
-                                              loop = TRUE))
+                 class = "map1-key-icon-container",
+                 tags$i(id = "map1-key-icon1", class = "map1-key-icon fas fa-circle"),
+                 span("Facility Not Yet Captured")
                ),
-               checkboxInput("showUnknown", "Show Facilities with Unknown Start Dates", value = FALSE),
-               # checkboxInput("showCaptures", "Show Spotted Facilities", value = FALSE)
+               div(
+                 class = "map1-key-icon-container",
+                 tags$i(id = "map1-key-icon2", class = "map1-key-icon fas fa-circle"),
+                 span("Facility Captured in Low Resolution")
+               ),
+               div(
+                 class = "map1-key-icon-container",
+                 tags$i(id = "map1-key-icon3", class = "map1-key-icon fas fa-circle"),
+                 span("Facility Captured in High Resolution")
+               )
              )
            )
   ),
