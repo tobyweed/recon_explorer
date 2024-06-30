@@ -40,9 +40,9 @@ server <- function(input, output, session) {
       weight = 1,
       color = color,
       opacity = 1,
-      fillOpacity = 1
-      # popup = ~ paste(facility_name, "<br>", "Facility Start Date: ", start_date,
-      #                ifelse(input$showCaptures, "<br>Not Yet Photographed", ""))
+      fillOpacity = 1,
+      popup = ~ paste(facility_name, "<br>", "Facility Start Date: ", start_date)
+                     # ifelse(input$showCaptures, "<br>Not Yet Photographed", "")
     )
   }
   
@@ -52,7 +52,7 @@ server <- function(input, output, session) {
       clearMarkers()
     
     current_date <- input$dateSlider
-    update_map1( prev_date = min_date, current_date = current_date) # set the previous date to the minimum date so all markers are re-drawn
+    update_map1( prev_date = min_date, current_date = current_date ) # set the previous date to the minimum date so all markers are re-drawn
     state$prev_date <- current_date
   }
   
