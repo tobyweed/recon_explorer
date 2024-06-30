@@ -91,9 +91,9 @@ server <- function(input, output, session) {
     leaflet(options = leafletOptions(minZoom = 0,
                                      zoomControl = FALSE,
                                      scrollWheelZoom = FALSE)) %>%
-      # addTiles() %>%
+      addTiles() %>%
       # addProviderTiles(providers$CartoDB.DarkMatter) %>%
-      addProviderTiles(providers$Stadia.AlidadeSmoothDark) %>%
+      # addProviderTiles(providers$Stadia.AlidadeSmoothDark) %>%
       # addProviderTiles(providers$NASAGIBS.ViirsEarthAtNight2012) %>%
       setView(lng = 0,
               lat = 30,

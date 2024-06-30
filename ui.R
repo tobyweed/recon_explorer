@@ -1,11 +1,12 @@
 ## CLIENT
 
 ui <- navbarPage(
-  "Nuclear Recon Explorer",
+  "NUCLEAR RECON EXPLORER",
   
   tags$head(
     tags$link(rel = "stylesheet", type = "text/css", href = "style1.css"),
     # tags$link(rel = "stylesheet", type = "text/css", href = "style2.css"),
+    # tags$link(rel = "stylesheet", type = "text/css", href = "style3.css"),
     
     tags$script(src = "https://kit.fontawesome.com/3ba4309900.js"),
     
@@ -23,7 +24,7 @@ ui <- navbarPage(
     ")),
   ),
 
-  tabPanel("Map",
+  tabPanel("MAP",
            leafletOutput(
                "map1",
                height = "100vh",
@@ -42,7 +43,7 @@ ui <- navbarPage(
                  class = "slider-container",
                  sliderInput(
                    "dateSlider",
-                   "Adjust Date:",
+                   "Timeline",
                    min = min_date,
                    max = max_date,
                    value = min_date,
@@ -51,13 +52,40 @@ ui <- navbarPage(
                                               loop = TRUE))
                  ),
                checkboxInput("showUnknown", "Show Facilities with Unknown Start Dates", value = FALSE),
-               # checkboxInput("showCaptures", "Show Spotted Facilities", value = FALSE),
-               # actionButton("toggle-button", "Toggle Control")
+               # checkboxInput("showCaptures", "Show Spotted Facilities", value = FALSE)
+             )
+           ),
+           div(
+             class = "map1-controls",
+             id = "map1-key",
+             div(
+               class = "control-header",
+               id = "key-header",
+               h4("Key"),
+               tags$i(id = "toggle-icon", class = "toggle-icon fas fa-minus")
+             ),
+             div(
+               class = "control-content",
+               id = "key-content",
+               div(
+                 class = "slider-container",
+                 sliderInput(
+                   "dateSlider",
+                   "Timeline",
+                   min = min_date,
+                   max = max_date,
+                   value = min_date,
+                   step = 365.25/4,
+                   animate = animationOptions(interval = 500/4,
+                                              loop = TRUE))
+               ),
+               checkboxInput("showUnknown", "Show Facilities with Unknown Start Dates", value = FALSE),
+               # checkboxInput("showCaptures", "Show Spotted Facilities", value = FALSE)
              )
            )
   ),
   
-  tabPanel("Search",
+  tabPanel("SEARCH",
            class = "search",
            sidebarLayout(
              # FACILITY SELECTION
@@ -95,6 +123,7 @@ ui <- navbarPage(
              
              # VISUALIZATION OPTIONS
              mainPanel(
+               class="search-main",
                selectInput(
                  inputId = "select_plot",
                  label = "Choose a Visualization:",

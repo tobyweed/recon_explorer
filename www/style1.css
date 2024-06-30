@@ -18,7 +18,8 @@
 
 body {
 	font-family: 'Roboto', sans-serif;
-	background-color: var(--dark-background-color);
+	/* background-color: var(--dark-background-color); */
+	background-color: white;
   border-color: var(--border-color);
   color: var(--text-color);
 }
@@ -94,6 +95,7 @@ btn:hover {
 	margin: 0;
 }
 
+
 .map1-controls {
 	position: relative;
 	width: 28vw;
@@ -133,6 +135,7 @@ btn:hover {
 
 .map1-controls .control-content {
 	padding-top: 20px;
+	margin-top: 10px;
 	border-top: 1px solid var(--text-color);
 }
 
@@ -145,7 +148,10 @@ btn:hover {
 	margin-left: 20px;
 }
 
-
 .search-sidebar {
   background-color: var(--background-color);
+}
+
+.search-main {
+  color: var(--dark-background-color);
 }
